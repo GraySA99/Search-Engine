@@ -1,5 +1,5 @@
 *.class
 *.log
 *.properties
-/target
-project/target/
+SearchEngine/project/
+SearchEngine/target
