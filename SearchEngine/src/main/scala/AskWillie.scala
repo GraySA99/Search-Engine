@@ -14,6 +14,15 @@ object AskWillie {
 
         // Load WebPage.id -> WebPage map to better handle graph
         val pages: Map[String, WebPage] = mapWebPages(loadWebPages)
+
+        print("|-/ ")
+        var userInput = readLine()
+
+        while (userInput != ":quit") {
+            print("|-/ ")
+            userInput = readLine()
+        }
+
     }
 
     // Load a List of WebPage objects from the packaged prolandwiki.csv file
