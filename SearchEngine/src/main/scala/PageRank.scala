@@ -29,7 +29,8 @@ object PageRank {
             } 
         } 
 
-        val x: List[String] = (for (_ <- 0 until 10000) yield walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)).foldLeft(List[String]()){_++_}
+        val x: List[String] = ( (1 to 10000).toList.par.map(_ => walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)) ).foldLeft(List[String]()){_++_}
+        // val x: List[String] = (for (_ <- 0 until 10000) yield walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)).foldLeft(List[String]()){_++_}
         (x map {t => t -> (x.count { _ == t })*1.0 }).toMap
     }
 }
