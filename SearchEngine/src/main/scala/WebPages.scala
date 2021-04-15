@@ -4,10 +4,10 @@ class WebPage(val id: String, val name: String, val url: String,
 }
 
 // TODO: Define RankedWebPage
-class RankedWebPage(id: String, name: String, url: String, text: String, links: List[String]) 
+class RankedWebPage(override val id: String, override val name: String, override val url: String, override val text: String, override val links: List[String], val weight: Double) 
     extends WebPage(id=id, name=name, url=url, text=text, links=links) {}
 
 
 // TODO: Define SearchedWebPage
-class SearchedWebPage(id: String, name: String, url: String, text: String, links: List[String]) 
-    extends WebPage(id=id, name=name, url=url, text=text, links=links) {}
+class SearchedWebPage(override val id: String, override val name: String, override val url: String, override val text: String, override val links: List[String], override val weight: Double, val textMatch: Double) 
+    extends RankedWebPage(id=id, name=name, url=url, text=text, links=links, weight=weight) {}
