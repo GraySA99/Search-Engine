@@ -11,7 +11,7 @@ object PageSearch {
 
     //Search Algorithim 2
     def tf(pages: List[RankedWebPage], query: List[String]): List[Double] = {
-        (for (x <- pages) yield countTerms(x.text.split("\\s+").toList, query, 0) / x.text.replaceAll("\\s", "").length)
+        (for (x <- pages) yield countTerms(x.text.split("\\s+").toList, query, 0) / x.text.split("\\s+").toList.length)
     }
 
     //Search Algorithim 3
@@ -21,15 +21,21 @@ object PageSearch {
 
     //Checks if the query contains a certain string in parallel
     def contains(query: ParIterable[String], string: String): Boolean = {
-        query.foldLeft(false)((a, b) => if (b == string) true else false)
+        query.foldLeft(false)((a, b) => if (b.toLowerCase == string.toLowerCase) true else false)
     }
+
+    /*def contains(query: List[String], string: String): Boolean = query match {
+        case Nil => false
+        case h::t if (h == string) => true
+        case h::t => contains(t, string)
+    }*/
 
     //Counts the number of terms that appear in both the list of terms and the query
     @tailrec
     def countTerms(termList: List[String], query: List[String], sum: Int): Int = termList match {
         case Nil => sum
-        case h::t if(contains(query.par, h)) => countTerms(t.filter(_ == h), query, sum + countInstances(termList.par, h))
-        case h::t => countTerms(t.filter(_ == h), query, sum)
+        case h::t if(contains(query.par, h)) => countTerms(t/*.filter(_ == h)*/, query, sum + 1/*countInstances(termList.par, h)*/)
+        case h::t if(!contains(query.par, h)) => countTerms(t/*.filter(_ == h)*/, query, sum)
     }
 
     //Counts the number of times a term appears in a term list in parallel
@@ -42,6 +48,6 @@ object PageSearch {
     def countPageInstances(pages: List[RankedWebPage], string: String, sum: Int): Int = pages match {
         case Nil => sum
         case h::t if (contains(h.text.split("\\s+").toList.par, string)) => countPageInstances(t, string, sum + 1)
-        case h::t => countPageInstances(t, string, sum)
+        case h::t if (!contains(h.text.split("\\s+").toList.par, string)) => countPageInstances(t, string, sum)
     }
 }
