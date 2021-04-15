@@ -50,15 +50,19 @@ object AskWillie {
             val words = userInput.split(" ")
             val matches = PageSearch.count(rankedPages.toList, words.toList)
             val normalMatch = for(value <- matches) yield ((value-matches.min)/(matches.max-matches.min))
-            print(rankedPages)
-            print(words)
-            print("results:"+matches)
+            //print(rankedPages)
+            print(words.toList)
+            //print("results:"+matches)
 
             val searchPages = for((page, matches) <- rankedPages zip normalMatch) yield new SearchedWebPage(page.id, page.name, page.url, page.text, page.links, page.weight, matches)
 
             //val pageTuple = Array(for(page <- searchPages) yield (page, Arithmetic(page.weight, page.textmatch)))
             //check _._2 please
-            //val pageSort = Sorting.quickSort(pageTuple)(Ordering.by[SearchedWebPage, Double](_._2))
+            val pageSort = Sorting.quickSort(searchPages)(pageOrdering)
+
+            val bestPages = for(i in 0 until 10)yield pageSort.toList(i)
+
+            for(page <- bastPages) print(page.name + ": "+ page.url)
         }
 
     }
@@ -66,6 +70,10 @@ object AskWillie {
     def Arithmetic(weight: Double, rank: Double) = {(weight + rank)/2}
     def Geometric(weight: Double, rank: Double) = {math.sqrt(weight * rank)}
     def harmonic(weight: Double, rank: Double) = {2/((1/weight) + (1/rank))}
+
+    object pageOrdering extends Ordering[SearchedWebPage] {
+        def compare(a:SearchedWebPage, b:SearchedWebPage) = Arithmetic(a.weight, a.rank) compare Arithmatic(b.weight, b.rank)
+    }
 
     // Load a List of WebPage objects from the packaged prolandwiki.csv file
     def loadWebPages: List[WebPage] = {
