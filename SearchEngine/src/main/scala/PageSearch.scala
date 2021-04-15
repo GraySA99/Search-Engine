@@ -11,7 +11,7 @@ object PageSearch {
 
     //Search Algorithim 2
     def tf(pages: List[RankedWebPage], query: List[String]): List[Double] = {
-        (for (x <- pages) yield countTerms(x.text.split("\\s+").toList, query, 0) / x.text.split("\\s+").toList.length)
+        (for (x <- pages) yield countTerms(x.text.split("\\s+").toList, query, 0).toDouble / x.text.split("\\s+").toList.length.toDouble)
     }
 
     //Search Algorithim 3
