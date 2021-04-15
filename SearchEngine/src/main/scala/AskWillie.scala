@@ -48,7 +48,11 @@ object AskWillie {
         while (userInput != ":quit") {
 
             val words = userInput.split(" ")
+
             val matches = PageSearch.count(rankedPages.toList, words.toList)
+            //val matches = PageSearch.tf(rankedPages.toList, words.toList)
+            //val matches = PageSearch.tfidf(rankedPages.toList, words.toList)
+
             val normalMatch = for(value <- matches) yield ((value-matches.min)/(matches.max-matches.min))
 
             val searchPages = for((page, matches) <- rankedPages zip normalMatch) yield new SearchedWebPage(page.id, page.name, page.url, page.text, page.links, page.weight, matches)
@@ -78,6 +82,8 @@ object AskWillie {
         def harmonic(weight: Double, rank: Double) = {2/((1/weight) + (1/rank))}
 
         def compare(a:SearchedWebPage, b:SearchedWebPage) = arithmetic(a.weight, a.textMatch) compare arithmetic(b.weight, b.textMatch)
+        //def compare(a:SearchedWebPage, b:SearchedWebPage) = geometric(a.weight, a.textMatch) compare geometric(b.weight, b.textMatch)
+        //def compare(a:SearchedWebPage, b:SearchedWebPage) = harmonic(a.weight, a.textMatch) compare harmonic(b.weight, b.textMatch)
     }
 
     // Load a List of WebPage objects from the packaged prolandwiki.csv file
