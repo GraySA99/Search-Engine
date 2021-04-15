@@ -16,7 +16,7 @@ object PageRank {
     def pagerank(pages: Map[String, WebPage]): Map[String, Double] = {
         // TODO: complete implementation
 
-        def walk(page: WebPage, steps: Int): List[String] = steps match {      
+        def walk(page: WebPage, steps: Int): String = steps match {      
 
             case x if x <= 0 => page.id
             case _ => {
@@ -30,7 +30,7 @@ object PageRank {
             } 
         } 
 
-        val x: List[String] = ( (1 to 10000).toList.par.map( _ => walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)) )
+        val x: List[String] = (1 to 10000).toList.par.map( _ => walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)).toList
         // val x: List[String] = ( (1 to 10000).toList.par.map(_ => walk(pages.values.toList(Random.nextInt(pages.values.size)), 100)) ).foldLeft(List[String]()){_++_}
         (x map {t => t -> (x.count { _ == t })*1.0 }).toMap
     }
