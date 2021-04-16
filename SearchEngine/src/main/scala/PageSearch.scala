@@ -28,8 +28,8 @@ object PageSearch {
     @tailrec
     def countSingleTerms(termList: List[String], query: List[String], weight: Double, initialSize: Int, pages: List[RankedWebPage]): Double = query match {
         case Nil => weight.toDouble
-        case h::t if (termList contains(h)) => countSingleTerms(termList.tail.filter(_ != termList.head), t, weight.toDouble + (countInstances(termList.par, h).toDouble / initialSize.toDouble) * (Math.log(pages.length.toDouble / (countPageInstances(pages, h, 0)).toDouble)).toDouble, initialSize, pages)
-        case h::t if !(termList contains(h)) => countSingleTerms(termList.tail.filter(_ != termList.head), t, weight.toDouble, initialSize, pages)
+        case h::t if (contains(termList.par, h)) => countSingleTerms(termList.tail.filter(_ != termList.head), t, weight.toDouble + (countInstances(termList.par, h).toDouble / initialSize.toDouble) * (Math.log(pages.length.toDouble / (countPageInstances(pages, h, 0)).toDouble)).toDouble, initialSize, pages)
+        case h::t if !(contains(termList.par, h)) => countSingleTerms(termList.tail.filter(_ != termList.head), t, weight.toDouble, initialSize, pages)
     }
 
     //Counts the number of terms that appear in both the list of terms and the query in parallel
@@ -43,6 +43,7 @@ object PageSearch {
     }
 
     //Counts the number of pages a term appears on
+    @tailrec
     def countPageInstances(pages: List[RankedWebPage], string: String, sum: Double): Double = pages match {
         case Nil => sum
         case h::t if (h.text contains(string)) => countPageInstances(t, string, sum + 1)
