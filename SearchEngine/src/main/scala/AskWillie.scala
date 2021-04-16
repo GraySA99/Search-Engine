@@ -2,6 +2,16 @@ import scala.io.Source
 import scala.io.StdIn.readLine
 import scala.util.Sorting
 
+object pageOrdering extends Ordering[SearchedWebPage] {
+    def arithmetic(weight: Double, rank: Double) = {(weight + rank)/2}
+    def geometric(weight: Double, rank: Double) = {math.sqrt(weight * rank)}
+    def harmonic(weight: Double, rank: Double) = {2/((1/weight) + (1/rank))}
+    
+    //def compare(a:SearchedWebPage, b:SearchedWebPage) = arithmetic(a.weight, a.textMatch) compare arithmetic(b.weight, b.textMatch)
+    def compare(a:SearchedWebPage, b:SearchedWebPage) = geometric(a.weight, a.textMatch) compare geometric(b.weight, b.textMatch)
+    //def compare(a:SearchedWebPage, b:SearchedWebPage) = harmonic(a.weight, a.textMatch) compare harmonic(b.weight, b.textMatch)
+}
+
 object AskWillie {
     def main(args: Array[String]) = {
         // println("=============================================================")
@@ -30,15 +40,9 @@ object AskWillie {
 
         // Load WebPage.id -> WebPage map to better handle graph
         val pages: Map[String, WebPage] = mapWebPages(loadWebPages)
-        //print("not")
         val ranks: Map[String, Double] = PageRank.pagerank(pages)
 
-        //print("here")
-
-        val max = ranks.max._2
-        val min = ranks.min._2
-
-        val normalRank = for((key,value) <- ranks) yield (key -> (value-min)/(max-min))
+        val normalRank = for((key,value) <- ranks) yield (key -> ((value - ranks.values.toList.min)/(ranks.values.toList.max - ranks.values.toList.min)))
 
         val rankedPages = for((key, value) <- pages) yield new RankedWebPage(value.id, value.name, value.url, value.text, value.links, normalRank.getOrElse(key, 0))
 
@@ -55,17 +59,26 @@ object AskWillie {
 
             val normalMatch = for(value <- matches) yield ((value-matches.min)/(matches.max-matches.min))
 
-            val searchPages = for((page, matches) <- rankedPages zip normalMatch) yield new SearchedWebPage(page.id, page.name, page.url, page.text, page.links, page.weight, matches)
+            var searchPages = for((page, matches) <- rankedPages zip normalMatch) yield new SearchedWebPage(page.id, page.name, page.url, page.text, page.links, page.weight, matches)
+            
+            for(page <- searchPages){
+                //print(page.name+" "+page.weight+" "+page.textMatch+"\n")
+            }
+
 
             Sorting.quickSort(searchPages.toArray)(pageOrdering)
+            
+            print("\n\n")
+            for(page <- searchPages){
+                //print(page.name+" "+page.weight+" "+page.textMatch+"\n")
+            }
 
             val bestPages = for(i <- 0 until 10) yield searchPages.toList(i)
 
-            val bestList: List[String] = for(page <- bestPages.toList) yield (page.name + ": "+ page.url+ "\n")
+            val bestList: List[String] = for(page <- bestPages.toList) yield (page.name + ": "+ page.url+ page.weight+ " " + page.textMatch+ "\n")
             for(site <- bestList){
                 print(site)
             }
-
 
             print("|-/ ")
             userInput = readLine()  
@@ -73,18 +86,7 @@ object AskWillie {
 
     }
 
-    
 
-    object pageOrdering extends Ordering[SearchedWebPage] {
-
-        def arithmetic(weight: Double, rank: Double) = {(weight + rank)/2}
-        def geometric(weight: Double, rank: Double) = {math.sqrt(weight * rank)}
-        def harmonic(weight: Double, rank: Double) = {2/((1/weight) + (1/rank))}
-
-        def compare(a:SearchedWebPage, b:SearchedWebPage) = arithmetic(a.weight, a.textMatch) compare arithmetic(b.weight, b.textMatch)
-        //def compare(a:SearchedWebPage, b:SearchedWebPage) = geometric(a.weight, a.textMatch) compare geometric(b.weight, b.textMatch)
-        //def compare(a:SearchedWebPage, b:SearchedWebPage) = harmonic(a.weight, a.textMatch) compare harmonic(b.weight, b.textMatch)
-    }
 
     // Load a List of WebPage objects from the packaged prolandwiki.csv file
     def loadWebPages: List[WebPage] = {
